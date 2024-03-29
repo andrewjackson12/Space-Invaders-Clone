@@ -1,0 +1,432 @@
+<!--
+    Space invaders scene for COSC3306 Assignment 1.
+    All work individually completed by Andrew Jackson.
+    Student number: 239445000
+-->
+
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <title>Space Invaders Scene with Three.js</title>
+        <style>
+            body { margin: 0; }
+            canvas { width: 100%; height: 100% }
+        </style>
+    </head>
+    <body>
+        
+        <script type="module">
+
+
+            // Import the Three.js module
+            import * as THREE from 'https://unpkg.com/three@0.111.0/build/three.module.js';
+            import { FontLoader, TextGeometry } from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
+
+
+        //Fires load event when page is loaded
+        
+        window.onload = function() {
+
+             // Example based on Dirksen, J. (2013, p. 19). "Learnign Three.js: The JavaScript 3D library for WebGl", Packt Publishing.
+
+            //Define the WebGL renderer:
+
+            var renderer = new THREE.WebGLRenderer(); //specify the we will use WebGL
+            renderer.setSize( 800, 600 ); //scene size (Width, Height)
+            document.body.appendChild( renderer.domElement );
+
+
+            //Initialize (create) the scene:
+
+            var scene = new THREE.Scene();
+
+
+            //Define the camera:
+
+            var camera = new THREE.PerspectiveCamera(
+                35,             // Field of view
+                800 / 600,      // Aspect ratio
+                0.1,            // Near plane
+                10000           // Far plane
+            );
+            camera.position.x= 0;  //default value anyway
+            camera.position.y= 0;  //default value anyway
+            camera.position.z = 100;
+            camera.lookAt( scene.position );
+
+
+
+            
+
+            //Text at top of screen (score and high score)
+            var loader = new THREE.FontLoader();
+            //Loading in the font
+            loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json', function(font) {
+
+            //TextGeometry object for text
+            var geometry = new THREE.TextGeometry('SCORE <1>        HI-SCORE     SCORE <2>', {
+                font: font,
+                size: 2,
+                height: 0,      //Zero height creates a 2D effect
+                curveSegments: 12,
+                bevelEnabled: false,
+            });
+            geometry.center();
+
+            //Creating mesh for text, applying colour (white)
+            var material = new THREE.MeshBasicMaterial({
+                color: 0xffffff
+            });
+            
+            var txt = new THREE.Mesh(geometry, material);
+            //Adjusting Y position of the mesh upwards to appear at top of screen
+            txt.position.y = 28;
+            txt.position.x = -10;
+
+            //Adding the text to the scene
+            scene.add(txt);
+
+            //Text for scores (actual numbers)
+
+            var geometry7 = new THREE.TextGeometry('0070                     0880', {
+                font: font,
+                size: 1.5,
+                height: 0,      //Zero height creates a 2D effect
+                curveSegments: 12,
+                bevelEnabled: false,
+            });
+            geometry7.center();
+
+            var material7 = new THREE.MeshBasicMaterial({
+                //Using green colour for creativity and to differ from original game
+                color: 0x16A926
+            });
+            
+            var txt = new THREE.Mesh(geometry7, material7);
+            //Adjusting Y position of the mesh upwards to appear at top of screen
+            txt.position.y = 24;
+            txt.position.x = -16;
+
+
+            scene.add(txt);
+
+
+            //End text for scores (actual numbers)
+
+            //Text for number of lives
+            var geometry8 = new THREE.TextGeometry('3', {
+                font: font,
+                size: 3,
+                height: 0,      //Zero height creates a 2D effect
+                curveSegments: 12,
+                bevelEnabled: false,
+            });
+            geometry8.center();
+
+            var material8 = new THREE.MeshBasicMaterial({
+                color: 0xffffff
+            });
+            
+            var txt = new THREE.Mesh(geometry8, material8);
+            //Adjusting Y position of the mesh upwards to appear at top of screen
+            txt.position.y = -28;
+            txt.position.x = -38;
+
+
+            scene.add(txt);
+
+            //End text for number of lives
+
+            //Text for credits at bottom right of scene
+            var geometry2 = new THREE.TextGeometry('CREDIT  00', {
+                font: font,
+                size: 3,
+                height: 0,      //Zero height creates a 2D effect
+                curveSegments: 12,
+                bevelEnabled: false,
+            });
+            geometry2.center();
+
+            var material2 = new THREE.MeshBasicMaterial({
+                color: 0xffffff
+            });
+            
+            var txt = new THREE.Mesh(geometry2, material2);
+            //Adjusting Y position of the mesh upwards to appear at top of screen
+            txt.position.y = -28;
+            txt.position.x = 30;
+
+
+            scene.add(txt);
+
+            //Cloud of points for stars
+            const vertices = [];
+
+            //For loop to generate random coords for the placement of "stars" in the scene
+            for ( let i = 0; i < 10000; i ++ ) {
+                const x = THREE.Math.randFloatSpread( 2000 );
+                const y = THREE.Math.randFloatSpread( 2000 );
+                const z = THREE.Math.randFloatSpread( 2000 );
+
+                vertices.push( x, y, z );
+            }
+
+            //Creating BufferGeometry object for the stars
+            const geometry3 = new THREE.BufferGeometry();
+            geometry3.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+
+            //Generates a new size for stars everytime the page is opened
+            var starBrightness = THREE.Math.randInt(1, 3);
+            const material3 = new THREE.PointsMaterial( { color: 0xffffff, size: starBrightness} );
+
+            const points = new THREE.Points( geometry3, material3 );
+            //Adding stars to the scene
+            scene.add( points );
+
+            //End cloud of points for stars
+
+            
+
+            
+
+            //SHAPES FOR CANNON
+            //Cannon body (using BoxGeometry so I don't have to create custom shape)
+            const geometry5 = new THREE.BoxGeometry( 6, 4, 1 ); 
+            const material5 = new THREE.MeshBasicMaterial( {color: 0x0CDAFF} ); 
+            const cannonBody = new THREE.Mesh( geometry5, material5 ); 
+            cannonBody.position.y = -19;
+            scene.add( cannonBody );
+
+            
+            //Cannons for bottom left lives display (clone of the original cannons)
+            const cannonBody2 = cannonBody.clone();
+            cannonBody2.position.y = -28;
+            cannonBody2.position.x = -30;
+
+            const cannonBody3 = cannonBody.clone();
+            cannonBody3.position.y = -28;
+            cannonBody3.position.x = -22;
+
+            //Adding second and third cannons to scene
+            scene.add( cannonBody2);
+            scene.add( cannonBody3);
+
+        
+
+
+            //Cannon tip
+            const geometry6 = new THREE.BoxGeometry( 0.7, 2, 1 ); 
+            const material6 = new THREE.MeshBasicMaterial( {color: 0x0CDAFF} ); 
+            const cannonTip = new THREE.Mesh( geometry6, material6 ); 
+            cannonTip.position.y = -16;
+            scene.add( cannonTip );
+
+            
+            //Clones for cannon tips for bottom left lives display
+            const cannonTip2 = cannonTip.clone();
+            cannonTip2.position.y = -25;
+            cannonTip2.position.x = -30;
+
+            const cannonTip3 = cannonTip.clone();
+            cannonTip3.position.y = -25;
+            cannonTip3.position.x = -22;
+
+            scene.add(cannonTip2);
+            scene.add(cannonTip3);
+
+            //END SHAPES FOR CANNON
+
+
+            //Shapes for shields
+            
+
+            //Using Shape object to create custom shapes
+            const shield = new THREE.Shape();
+
+
+            //Moving shield to center (default)
+            shield.moveTo(0, 0, 0);
+            //Creating shape using lineTo function (connects the vertices)
+            shield.lineTo(-1, -1, 0);
+            shield.lineTo(-1, -8, 0);
+            shield.lineTo(1, -8, 0);
+            shield.lineTo(1, -6, 0);
+            shield.lineTo(6, -6, 0);
+            shield.lineTo(6, -8, 0);
+            shield.lineTo(8, -8, 0);
+            shield.lineTo(8, -1, 0);
+            shield.lineTo(7, 0, 0);
+
+            //Creating mesh and adding to scene
+            const shieldGeometry = new THREE.ShapeGeometry( shield ); 
+            const shieldMaterial = new THREE.MeshBasicMaterial( { color: 0x0CDAFF });
+            const shieldMesh = new THREE.Mesh(shieldGeometry, shieldMaterial);
+            
+            shieldMesh.position.y = -5
+            shieldMesh.position.x = -32
+
+            scene.add(shieldMesh);
+
+            //Cloning shield for 4 different ones
+            const shield2 = shieldMesh.clone();
+            shield2.position.y = -5;
+            shield2.position.x = -14;
+
+            const shield3 = shieldMesh.clone();
+            shield3.position.y = -5;
+            shield3.position.x = 4;
+
+            const shield4 = shieldMesh.clone();
+            shield4.position.y = -5;
+            shield4.position.x = 22;
+
+            //Adding cloned shields to the scene
+            scene.add(shield2);
+            scene.add(shield3);
+            scene.add(shield4);
+
+
+
+            
+            //End shapes for shields
+
+            //Shapes for aliens
+
+            const alien = new THREE.Shape();
+
+            //Creating custom shape as done above with shields
+            alien.moveTo(0, 0, 0);
+            alien.lineTo(-2, -3, 0);
+            alien.lineTo(-1, -5, 0);
+            alien.lineTo(-2, -6, 0);
+            alien.lineTo(2, -6, 0);
+            alien.lineTo(1, -5, 0);
+            alien.lineTo(2, -3, 0);
+
+
+            const alienGeometry = new THREE.ShapeGeometry( alien ); 
+            const alienMaterial = new THREE.MeshBasicMaterial( { color: 0xEA1010 });
+            const alienMesh = new THREE.Mesh(alienGeometry, alienMaterial);
+            
+            alienMesh.position.y = 10
+            alienMesh.position.x = 0
+
+
+            //Setting a variable to translate the aliens (var changes in animation function)
+            var translateX = -1
+
+            scene.add(alienMesh);
+
+            //Clones for aliens (to use three)
+            const alien2 = alienMesh.clone();
+            const alien3 = alienMesh.clone();
+
+            alien2.position.x = -15;
+            alien3.position.x = 15;
+
+            scene.add(alien2);
+            scene.add(alien3);
+            
+
+            //End shapes for aliens
+
+            //MOVING CANNON WITH KEYS
+            document.onkeydown = function (e) {
+                //print out onkeydown event in console (for testing)
+                console.log(e);
+
+                //If left key is pressed, move cannon to left 
+                if (e.keyCode == 37) {
+                    cannonBody.position.x -= 1;
+                    cannonTip.position.x -= 1;
+                }
+
+                //If right key is pressed, move cannon to right 
+                if (e.keyCode == 39) {
+                    cannonBody.position.x += 1;
+                    cannonTip.position.x += 1;
+                }
+
+
+            }
+
+            //END MOVING CANNON WITH KEYS          
+
+            //Function to animate aliens            
+            function animate() {
+                //Limits the calls to this function to slow down animation and translation
+                setTimeout( function() {
+                    requestAnimationFrame(animate);
+
+                }, 1000 / 20);
+
+                //Rotating each alien by 0.1 radians each frame
+                alienMesh.rotation.x += 0.1;
+                alienMesh.rotation.y += 0.1;
+                alienMesh.rotation.z += 0.1;
+
+                alien2.rotation.x += 0.1;
+                alien2.rotation.y += 0.1;
+                alien2.rotation.z += 0.1;
+
+                alien3.rotation.x += 0.1;
+                alien3.rotation.y += 0.1;
+                alien3.rotation.z += 0.1;
+                
+
+                //Translating aliends over x-axis
+                alienMesh.position.x += translateX;
+                alien2.position.x += translateX;
+                alien3.position.x += translateX;
+                
+                //Changing X translation variable when the aliens have moved enough left/right
+                if(alienMesh.position.x > 2) translateX = -1;
+                if(alienMesh.position.x < -2) translateX = 1;
+                renderer.render(scene, camera);
+                
+            }
+            //Calling animate function to execute it
+            animate();
+            
+
+            });
+
+            
+
+
+            //Blue line at bottom of screen
+            const material = new THREE.LineBasicMaterial({
+                color: 0x0CDAFF
+            });
+
+            //Array of two points that the line will connect
+            const points = [];
+            points.push( new THREE.Vector3( -50, -23, 0 ) );
+            points.push( new THREE.Vector3( 50, -23, 0 ) );
+
+            const geometry = new THREE.BufferGeometry().setFromPoints( points );
+
+            const line = new THREE.Line( geometry, material );
+            //Adding line the scene
+            scene.add( line );
+
+            //END COMMENT FOR BOTTOM GREEN LINE
+ 
+            // create a point light:
+            var pointLight = new THREE.PointLight(0xFFFFFF);
+            // set the light position:
+            pointLight.position.x = 10;
+            pointLight.position.y = 50;
+            pointLight.position.z = 100;
+            // add the light to the scene:
+            scene.add(pointLight);
+
+            // Render the scene:
+            renderer.render( scene, camera );
+
+
+        }
+        </script>
+    </body>
+</html>
